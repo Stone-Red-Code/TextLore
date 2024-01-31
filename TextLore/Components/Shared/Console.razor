@@ -1,8 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
 @using TextLore.Models
 
-@rendermode InteractiveServer
-
 <div id="console">
     <div id="header">
         <h4>@Name</h4>
@@ -10,46 +8,105 @@
         {
             <h5> @DateTime.UtcNow.ToLongDateString()</h5>
         }
-        <h6>> @Description</h6>
+
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <h6>> @Description</h6>
+        }
     </div>
     <div id="container">
-        <EditForm OnValidSubmit="Execute" OnInvalidSubmit="Execute" autocomplete="off" Model="ConsoleInput" novalidate>
+        <EditForm OnSubmit="Execute"  autocomplete="off" Model="ConsoleInput" novalidate>
             <div id="input-line" class="input-line">
                 <div class="prompt">
                     Command >
                 </div>
                 <div>
-                    <InputText id="commandline" autocomplete="off" class="cmdline" disabled="@Disabled" placeholder="@Placeholder" @bind-Value="@ConsoleInput.Text" />
+                    <InputText @ref="inputText" id="commandline" autocomplete="off" class="cmdline" disabled="@disabled" placeholder="@Placeholder" @bind-Value="@ConsoleInput.Text" />
                 </div>
             </div>
         </EditForm>
         <pre>
-        <code>@((MarkupString)Running)</code>
-        <code>@((MarkupString)Output)</code>
+        <code>@((MarkupString)running)</code>
+        <code>@((MarkupString)output)</code>
         </pre>
     </div>
 </div>
 
 @code {
-    public string Output { get; set; } = "";
-    public string Running { get; set; } = "";
-    public string Name { get; set; } = "Main Menu";
-    public string Description { get; set; } = "Select a game mode";
-    public bool ShowDate { get; set; } = true;
-    public bool Disabled { get; set; } = false;
-    public string Placeholder { get; set; } = "Enter a command, type 'help' for avaliable commands.";
-    public ConsoleInput ConsoleInput { get; set; } = new ConsoleInput();
 
-    public void Execute(EditContext context)
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = "Console";
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public bool ShowDate { get; set; } = true;
+
+
+    public string Placeholder => $"Enter a command{(HelpCommand is null ? "." : ", type 'help' for avaliable commands.")}";
+
+    public ConsoleInput ConsoleInput { get; set; } = new();
+    public ConsoleOutput ConsoleOutput { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public IEnumerable<Command> Commands { get; set; } = [];
+
+    [Parameter]
+    public Command? HelpCommand { get; set; }
+
+    private string output { get; set; } = "";
+    private string running { get; set; } = "";
+    private bool disabled { get; set; } = false;
+    private InputText? inputText;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Disabled = true;
-        Running = ConsoleInput.Text;
-        string newOutput = $"<p>";
-        newOutput += $"<span class='header'>{DateTime.UtcNow.ToString("HH:mm")} > </span><span class='command'>{ConsoleInput.Text}{Environment.NewLine}</span>";
-        newOutput += $"1+1=3";
-        newOutput += $"</p>";
-        Output = newOutput + Output;
-        ConsoleInput.Text = "";
-        Disabled = false;
+        if (inputText?.Element is not null)
+        {
+            await inputText.Element.Value.FocusAsync();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ConsoleOutput.OnOutput += WriteOutput;
+    }
+
+    public async Task Execute(EditContext context)
+    {
+        Command? command = Commands.FirstOrDefault(c=>c.Name.Equals(ConsoleInput.Text));
+        command ??= HelpCommand;
+
+        if(command is null)
+        {
+            running = $"[Failed] Command '{ConsoleInput.Text}' not found!";
+            ConsoleInput.Text = string.Empty;
+            return;
+        }
+
+        disabled = true;
+
+        running = $"<p>";
+        running += $"<span class='header'>{ConsoleInput.Time.ToString("HH:mm")} > </span><span class='command'>{ConsoleInput.Text}{Environment.NewLine}</span>";
+
+        bool success = await command.Execute(ConsoleOutput, []);
+
+        running += "</p>";
+
+        output = running + output;
+
+        running = success ? $"[Success]" : $"[Failed]";
+
+        ConsoleInput.Text = string.Empty;
+        disabled = false;
+        StateHasChanged();
+    }
+
+    public void WriteOutput(object? sender, ConsoleOutputEventArgs e)
+    {
+        string newOutput = e.Message;
+        output = newOutput + output;
+        StateHasChanged();
     }
 }

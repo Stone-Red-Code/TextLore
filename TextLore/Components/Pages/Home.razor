@@ -1,5 +1,12 @@
 ﻿@page "/"
+@using TextLore.Commands
+@using TextLore.Models
 
 <PageTitle>Home</PageTitle>
 
-<TextLore.Components.Shared.Console />
+<TextLore.Components.Shared.Console Commands="commands" />
+
+@code 
+{
+    Command[] commands = [new TestCommand()];
+}
