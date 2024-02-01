@@ -1,12 +1,19 @@
 ﻿@page "/"
-@using TextLore.Commands
-@using TextLore.Models
 
-<PageTitle>Home</PageTitle>
 
-<TextLore.Components.Shared.Console Commands="commands" />
+<PageTitle>TextLore</PageTitle>
+
+<Console Name="Main Menu" Commands="commands" HelpCommand="helpCommand" />
 
 @code 
 {
-    Command[] commands = [new TestCommand()];
+    List<Command> commands = [new TestCommand(), new ClearCommand()];
+
+    HelpCommand? helpCommand;
+
+    protected override void OnInitialized()
+    {
+        helpCommand  = new HelpCommand(commands);
+        commands.Add(helpCommand);
+    }
 }

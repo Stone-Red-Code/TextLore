@@ -18,7 +18,7 @@
         <EditForm OnSubmit="Execute"  autocomplete="off" Model="ConsoleInput" novalidate>
             <div id="input-line" class="input-line">
                 <div class="prompt">
-                    Command >
+                    Command > 
                 </div>
                 <div>
                     <InputText @ref="inputText" id="commandline" autocomplete="off" class="cmdline" disabled="@disabled" placeholder="@Placeholder" @bind-Value="@ConsoleInput.Text" />
@@ -26,8 +26,16 @@
             </div>
         </EditForm>
         <pre>
-        <code>@((MarkupString)running)</code>
-        <code>@((MarkupString)output)</code>
+        <code>@currentOutput?.Text</code>
+        <code>
+            @foreach (ConsoleOutput output in consoleOutputs.Reverse<ConsoleOutput>())
+            {
+                <p>
+                    <span class='header'>@output.Time.ToString("HH:mm") > </span><span class='command'>@output.Command</span>
+@output.Text
+                </p>
+            }
+        </code>
         </pre>
     </div>
 </div>
@@ -43,20 +51,16 @@
     [Parameter]
     public bool ShowDate { get; set; } = true;
 
-
-    public string Placeholder => $"Enter a command{(HelpCommand is null ? "." : ", type 'help' for avaliable commands.")}";
-
-    public ConsoleInput ConsoleInput { get; set; } = new();
-    public ConsoleOutput ConsoleOutput { get; set; } = new();
-
     [Parameter, EditorRequired]
     public IEnumerable<Command> Commands { get; set; } = [];
 
     [Parameter]
     public Command? HelpCommand { get; set; }
 
-    private string output { get; set; } = "";
-    private string running { get; set; } = "";
+    private string Placeholder => $"Enter a command{(HelpCommand is null ? "." : ", type 'help' for avaliable commands.")}";
+    private ConsoleInput ConsoleInput { get; set; } = new();
+    private List<ConsoleOutput> consoleOutputs = new();
+    private ConsoleOutput? currentOutput;
     private bool disabled { get; set; } = false;
     private InputText? inputText;
 
@@ -68,45 +72,74 @@
         }
     }
 
-    protected override void OnInitialized()
-    {
-        ConsoleOutput.OnOutput += WriteOutput;
-    }
-
     public async Task Execute(EditContext context)
     {
-        Command? command = Commands.FirstOrDefault(c=>c.Name.Equals(ConsoleInput.Text));
-        command ??= HelpCommand;
+        string commandName = ConsoleInput.Text.Split(' ')[0];
+        string commandArgs = new string(ConsoleInput.Text.Skip(commandName.Length).ToArray()).TrimStart(' ');
 
-        if(command is null)
+        Command? command = Commands.FirstOrDefault(c => c.Name.Equals(commandName) || c.Aliases.Contains(commandName));
+        command ??= HelpCommand?.Name.Equals(commandName) == true || HelpCommand?.Aliases.Contains(commandName) == true ? HelpCommand : null;
+
+        if (command is null)
         {
-            running = $"[Failed] Command '{ConsoleInput.Text}' not found!";
-            ConsoleInput.Text = string.Empty;
+            await CommandNotFound(commandName);
             return;
         }
 
         disabled = true;
 
-        running = $"<p>";
-        running += $"<span class='header'>{ConsoleInput.Time.ToString("HH:mm")} > </span><span class='command'>{ConsoleInput.Text}{Environment.NewLine}</span>";
+        ConsoleWriter consoleWriter = new ConsoleWriter();
+        ConsoleOutput consoleOutput = new ConsoleOutput();
 
-        bool success = await command.Execute(ConsoleOutput, []);
+        consoleWriter.OnOutput += (_, e) => WriteOutput(consoleOutput, e);
+        consoleWriter.OnClear += (_, _) => consoleOutputs.Clear();
+        consoleOutput.Command = ConsoleInput.Text;
+        currentOutput = consoleOutput;
 
-        running += "</p>";
+        CommandResult commandResult = await command.Execute(consoleWriter, commandArgs);
 
-        output = running + output;
+        currentOutput = new()
+        {
+            Text = $"{(commandResult.IsSuccess ? "[Success]" : "[Failed]")} {commandResult.Message}"
+        };
 
-        running = success ? $"[Success]" : $"[Failed]";
+        if (!command.NoHistoryIfNoOutput || !string.IsNullOrWhiteSpace(consoleOutput.Text))
+        {
+            consoleOutputs.Add(consoleOutput);
+        }
 
         ConsoleInput.Text = string.Empty;
         disabled = false;
         StateHasChanged();
     }
 
-    public void WriteOutput(object? sender, ConsoleOutputEventArgs e)
+    public void WriteOutput(ConsoleOutput consoleOutput, ConsoleOutputEventArgs e)
     {
-        string newOutput = e.Message;
-        output = newOutput + output;
+        consoleOutput.Text += e.Message;
         StateHasChanged();
+    }
+
+    private async Task CommandNotFound(string commandName)
+    {
+        currentOutput = new()
+        {
+            Text = $"[Failed] Command '{commandName}' not found!"
+        };
+
+        if(HelpCommand is null)
+        {
+            return;
+        }
+
+        ConsoleWriter consoleWriter = new ConsoleWriter();
+        ConsoleOutput consoleOutput = new ConsoleOutput();
+
+        consoleWriter.OnOutput += (_, e) => WriteOutput(consoleOutput, e);
+        consoleOutput.Command = ConsoleInput.Text;
+        consoleOutputs.Add(consoleOutput);
+
+        CommandResult commandResult = await HelpCommand.Execute(consoleWriter, string.Empty);
+
+        ConsoleInput.Text = string.Empty;
     }
 }
