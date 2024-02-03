@@ -1,6 +1,4 @@
-﻿using TextLore.Models;
-
-namespace TextLore.Commands;
+﻿namespace TextLore.Console.Commands;
 
 public class HelpCommand(IEnumerable<Command> commands) : Command
 {
@@ -18,7 +16,7 @@ public class HelpCommand(IEnumerable<Command> commands) : Command
             {
                 consoleOutput.WriteLine($"  {command.Name} - {command.Description}");
             }
-            return Task.FromResult(CommandResult.Success());
+            return CommandResult.Success();
         }
         else
         {
@@ -26,7 +24,7 @@ public class HelpCommand(IEnumerable<Command> commands) : Command
             if (command is null)
             {
                 consoleOutput.WriteLine($"Command \"{args[0]}\" not found.");
-                return Task.FromResult(CommandResult.Failure());
+                return CommandResult.Failure();
             }
             else
             {
@@ -44,7 +42,7 @@ public class HelpCommand(IEnumerable<Command> commands) : Command
                     consoleOutput.WriteLine($"Usage: {command.Usage}");
                 }
 
-                return Task.FromResult(CommandResult.Success());
+                return CommandResult.Success();
             }
         }
     }

@@ -29,14 +29,8 @@ app {
     overflow-y: hidden;
 }
 
-#console::before {
-    position: absolute;
-    content: "";
-    height: 10%;
-    width: 100%;
-    bottom: 3rem;
-    left: 0;
-    background: linear-gradient(transparent 0%, black 100%);
+h1:focus {
+    outline: none;
 }
 
 .sidebar {
@@ -139,5 +133,5 @@ app {
 }
 
 ::selection {
-    background: #FF5E99;
+    background: #0dcaf0;
 }

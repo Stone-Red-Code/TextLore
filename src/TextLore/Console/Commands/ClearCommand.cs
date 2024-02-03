@@ -1,6 +1,4 @@
-﻿using TextLore.Models;
-
-namespace TextLore.Commands;
+﻿namespace TextLore.Console.Commands;
 
 public class ClearCommand : Command
 {
@@ -13,7 +11,7 @@ public class ClearCommand : Command
 
     public override Task<CommandResult> Execute(ConsoleWriter consoleOutput, string args)
     {
-        consoleOutput.Clear();
-        return Task.FromResult(CommandResult.Success("Console cleared!"));
+        consoleOutput.ClearAll();
+        return CommandResult.Success("Console cleared!");
     }
 }

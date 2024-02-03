@@ -1,4 +1,4 @@
-﻿namespace TextLore.Models;
+﻿namespace TextLore.Console;
 
 public enum ConsoleMessageType
 {

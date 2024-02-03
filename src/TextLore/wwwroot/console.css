@@ -111,6 +111,16 @@
         color: inherit;
     }
 
+    #console::before {
+        position: absolute;
+        content: "";
+        height: 10%;
+        width: 100%;
+        bottom: 3rem;
+        left: 0;
+        background: linear-gradient(transparent 0%, black 100%);
+    }
+
 .valid {
     outline-color: black !important;
 }

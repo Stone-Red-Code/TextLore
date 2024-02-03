@@ -1,0 +1,6 @@
+﻿@page "/roguelike/{Seed?}"
+
+@inject GamesDatabaseContext DatabaseContext
+@inject NavigationManager NavigationManager
+
+<Console @ref="console" Name="Roguelike" Commands="commands" Description="@desctiption" HelpCommand="helpCommand" />

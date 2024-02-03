@@ -1,10 +1,15 @@
-﻿namespace TextLore.Models;
+﻿namespace TextLore.Console;
 
 public class ConsoleWriter
 {
     public event EventHandler<ConsoleOutputEventArgs>? OnOutput;
 
-    public event EventHandler<EventArgs>? OnClear;
+    public event EventHandler<EventArgs>? OnClearAll;
+
+    public event EventHandler<EventArgs>? OnClearLine;
+
+    public event EventHandler<EventArgs>? OnClearCurrent;
+
     public void Write(string message, ConsoleMessageType consoleMessageType = ConsoleMessageType.Default)
     {
         OnOutput?.Invoke(this, new(message, consoleMessageType));
@@ -45,8 +50,18 @@ public class ConsoleWriter
         WriteInfo(message + Environment.NewLine);
     }
 
-    public void Clear()
+    public void ClearLine()
     {
-        OnClear?.Invoke(this, EventArgs.Empty);
+        OnClearLine?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ClearAll()
+    {
+        OnClearAll?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ClearCurrent()
+    {
+        OnClearCurrent?.Invoke(this, EventArgs.Empty);
     }
 }

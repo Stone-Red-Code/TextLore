@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
-@using TextLore.Models
 
 <div id="console">
     <div id="header">
@@ -72,11 +71,16 @@
         }
     }
 
-    public async Task Execute(EditContext context)
+    private Task Execute(EditContext context)
     {
         string commandName = ConsoleInput.Text.Split(' ')[0];
         string commandArgs = new string(ConsoleInput.Text.Skip(commandName.Length).ToArray()).TrimStart(' ');
 
+        return Execute(commandName, commandArgs);
+    }
+
+    public async Task Execute(string commandName, string commandArgs = "")
+    {
         Command? command = Commands.FirstOrDefault(c => c.Name.Equals(commandName) || c.Aliases.Contains(commandName));
         command ??= HelpCommand?.Name.Equals(commandName) == true || HelpCommand?.Aliases.Contains(commandName) == true ? HelpCommand : null;
 
@@ -86,13 +90,20 @@
             return;
         }
 
+        await Execute(command, commandArgs);
+    }
+
+    public async Task Execute(Command command, string commandArgs = "")
+    {
         disabled = true;
 
         ConsoleWriter consoleWriter = new ConsoleWriter();
         ConsoleOutput consoleOutput = new ConsoleOutput();
 
         consoleWriter.OnOutput += (_, e) => WriteOutput(consoleOutput, e);
-        consoleWriter.OnClear += (_, _) => consoleOutputs.Clear();
+        consoleWriter.OnClearAll += (_, _) => consoleOutputs.Clear();
+        consoleWriter.OnClearLine += (_, _) => ClearLine(consoleOutput);
+        consoleWriter.OnClearCurrent += (_, _) => consoleOutput.Text = string.Empty;
         consoleOutput.Command = ConsoleInput.Text;
         currentOutput = consoleOutput;
 
@@ -117,6 +128,18 @@
     {
         consoleOutput.Text += e.Message;
         StateHasChanged();
+    }
+
+    private void ClearLine(ConsoleOutput consoleOutput)
+    {
+        consoleOutput.Text = consoleOutput.Text.TrimEnd(Environment.NewLine.ToCharArray());
+
+        if (consoleOutput.Text.Contains(Environment.NewLine))
+        {
+            consoleOutput.Text = consoleOutput.Text.Substring(0, consoleOutput.Text.LastIndexOf(Environment.NewLine));
+        }
+
+        consoleOutput.Text += Environment.NewLine;
     }
 
     private async Task CommandNotFound(string commandName)

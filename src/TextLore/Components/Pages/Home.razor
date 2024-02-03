@@ -1,15 +1,16 @@
 ﻿@page "/"
 
-
 <PageTitle>TextLore</PageTitle>
 
-<Console Name="Main Menu" Commands="commands" HelpCommand="helpCommand" />
+<Console Name="Main Menu" Commands="commands" Description="@desctiption" HelpCommand="helpCommand" />
 
 @code 
 {
     List<Command> commands = [new TestCommand(), new ClearCommand()];
 
     HelpCommand? helpCommand;
+
+    string desctiption = "Select a game mode by using the 'play' command.";
 
     protected override void OnInitialized()
     {

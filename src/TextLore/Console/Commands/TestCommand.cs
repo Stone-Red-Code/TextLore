@@ -1,6 +1,4 @@
-﻿using TextLore.Models;
-
-namespace TextLore.Commands;
+﻿namespace TextLore.Console.Commands;
 
 public class TestCommand : Command
 {
@@ -12,6 +10,6 @@ public class TestCommand : Command
     public override Task<CommandResult> Execute(ConsoleWriter consoleOutput, string args)
     {
         consoleOutput.WriteLine("This is a test command.");
-        return Task.FromResult(CommandResult.Success("test"));
+        return CommandResult.Success("test");
     }
 }
