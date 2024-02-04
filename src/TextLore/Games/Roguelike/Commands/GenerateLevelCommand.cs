@@ -54,7 +54,7 @@ public class GenerateLevelCommand(IQueryable<RoomDefinition> roomDefinitions, Na
 
         consoleOutput.WriteLine($"Level size: {level.Size.Width}x{level.Size.Height}");
         consoleOutput.WriteLine($"Room count: {level.RoomCount}");
-        consoleOutput.WriteLine($"Filled space: {(double)level.RoomCount / (level.Size.Width * level.Size.Height):F0}%");
+        consoleOutput.WriteLine($"Filled space: {(double)level.RoomCount / (level.Size.Width * level.Size.Height) * 100:F0}%");
         consoleOutput.WriteLine($"Seed: {seed.ToBase64()}");
 
         consoleOutput.WriteLine("Level generation complete!");
