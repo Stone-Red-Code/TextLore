@@ -19,12 +19,12 @@ public class LevelGenerator(DeterministicRandom seed, IQueryable<RoomDefinition>
         Level level = new Level(size, seed);
         Queue<Room> generationQueue = new Queue<Room>();
 
-        RoomDefinition startRoomDefinition = await GetRandomRoomDefinition() ?? throw new InvalidOperationException("No rooms found in the database.");
+        RoomDefinition startRoomDefinition = await GetRandomRoomDefinition(level) ?? throw new InvalidOperationException("No rooms found in the database.");
         Position startRoomPosition = new Position(seed.Next(0, size.Width), seed.Next(0, size.Height));
 
         Room startRoom = new Room(startRoomPosition, startRoomDefinition);
 
-        level.AddRoom(startRoom);
+        _ = level.AddRoom(startRoom);
         generationQueue.Enqueue(startRoom);
 
         while (generationQueue.Count > 0)
@@ -43,11 +43,11 @@ public class LevelGenerator(DeterministicRandom seed, IQueryable<RoomDefinition>
 
                 if (level.IsPositionInBounds(newPosition) && level.GetRoom(newPosition) is null)
                 {
-                    RoomDefinition? newRoomDefinition = await GetRandomRoomDefinition();
+                    RoomDefinition? newRoomDefinition = await GetRandomRoomDefinition(level);
 
                     Room newRoom = new Room(newPosition, newRoomDefinition ?? throw new InvalidOperationException("No rooms found in the database."));
 
-                    level.AddRoom(newRoom);
+                    _ = level.AddRoom(newRoom);
                     generationQueue.Enqueue(newRoom);
                 }
             }
@@ -74,7 +74,7 @@ public class LevelGenerator(DeterministicRandom seed, IQueryable<RoomDefinition>
         return level;
     }
 
-    private async Task<RoomDefinition?> GetRandomRoomDefinition()
+    private async Task<RoomDefinition?> GetRandomRoomDefinition(Level level)
     {
         RoomDefinition? room = null;
         int randomRoomIndex = seed.Next();
@@ -86,6 +86,11 @@ public class LevelGenerator(DeterministicRandom seed, IQueryable<RoomDefinition>
         for (int i = 0; i < 100; i++)
         {
             room = await rooms.FirstOrDefaultAsync(x => x.Id == randomRoomIndex);
+
+            if (room?.Tag == RoomTag.Unique && level.RoomExists(room))
+            {
+                room = null;
+            }
 
             if (room is not null)
             {

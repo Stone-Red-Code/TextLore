@@ -4,5 +4,5 @@ namespace TextLore.Database;
 
 public class GamesDatabaseContext(DbContextOptions<GamesDatabaseContext> options) : DbContext(options)
 {
-    public DbSet<Games.Roguelike.Models.RoomDefinition> RoguelikeRooms { get; set; }
+    public DbSet<Games.Roguelike.Models.RoomDefinition> Rooms { get; set; }
 }

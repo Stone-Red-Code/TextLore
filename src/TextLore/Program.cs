@@ -28,17 +28,15 @@ GamesDatabaseContext databaseContext = serviceScope.ServiceProvider.GetRequiredS
 
 if (await databaseContext.Database.EnsureCreatedAsync())
 {
-    databaseContext.RoguelikeRooms.AddRange(
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 1"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 2"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 3"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 4"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 5"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 6"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 7"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 8"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 9"),
-        new TextLore.Games.Roguelike.Models.RoomDefinition("Room 10")
+    databaseContext.Rooms.AddRange(
+        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.Start, "rogelike") { Name = "Start Room" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Unique Room" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(2, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Normal Room 1" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(3, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Normal Room 2" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(4, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Normal Room 3" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(5, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Normal Room 4" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(6, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Normal Room 5" },
+        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.End, "rogelike") { Name = "End Room" }
     );
 
     _ = await databaseContext.SaveChangesAsync();

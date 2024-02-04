@@ -37,7 +37,7 @@ public partial class RoguelikePage
     {
         if (firstRender)
         {
-            await console.Execute(new GenerateLevelCommand(DatabaseContext.RoguelikeRooms, NavigationManager, OnLevelGenerated), Seed);
+            await console.Execute(new GenerateLevelCommand(DatabaseContext.Rooms, NavigationManager, OnLevelGenerated), Seed);
         }
     }
 }

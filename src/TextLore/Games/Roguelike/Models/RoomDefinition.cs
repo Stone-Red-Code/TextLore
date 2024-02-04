@@ -1,14 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TextLore.Games.Roguelike.Models;
 
-public class RoomDefinition(string name)
+[PrimaryKey(nameof(Id), nameof(Tag), nameof(Game))]
+public class RoomDefinition(int id, RoomTag tag, string game)
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; private set; }
+    [Column(Order = 0)]
+    public int Id { get; } = id;
 
-    [Required]
-    public string Name { get; set; } = name;
+    [Column(Order = 1)]
+    public RoomTag Tag { get; } = tag;
+
+    [Column(Order = 2)]
+    public string Game { get; } = game;
+
+    public required string Name { get; set; }
+
+    public string Script { get; set; } = string.Empty;
 }

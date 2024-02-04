@@ -22,14 +22,26 @@ public class Level(Size size, DeterministicRandom seed)
         return rooms;
     }
 
-    public void AddRoom(Room room)
+    public bool AddRoom(Room room)
     {
         if (!IsRoomInBounds(room))
         {
-            throw new InvalidOperationException("Room is out of bounds.");
+            return false;
+        }
+
+        if (room.Definition.Tag == RoomTag.Unique && RoomExists(room.Definition))
+        {
+            return false;
+        }
+
+        if (room.Definition.Tag == RoomTag.Start && rooms.Values.Any(r => r.Definition.Tag == RoomTag.Start))
+        {
+            return false;
         }
 
         rooms[room.Position] = room;
+
+        return true;
     }
 
     public bool IsPositionInBounds(Position point)
@@ -45,6 +57,11 @@ public class Level(Size size, DeterministicRandom seed)
     public bool RoomExists(Position point)
     {
         return rooms.ContainsKey(point);
+    }
+
+    public bool RoomExists(RoomDefinition definition)
+    {
+        return rooms.Values.Any(r => r.Definition.Id == definition.Id);
     }
 
     public void ClearRoom(Position point)
