@@ -2,7 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace TextLore.Utilities.Logic;
+namespace TextLore.Shared.Logic;
 
 public class DeterministicRandom(int seed, int min, int max) : IParsable<DeterministicRandom>
 {

@@ -1,6 +1,6 @@
-﻿using TextLore.Utilities.Models;
+﻿using TextLore.Shared.Models;
 
-namespace TextLore.Games.Roguelike.Models;
+namespace TextLore.Shared.Models.Level;
 
 public class Room(Position position, RoomDefinition roomDefinition)
 {

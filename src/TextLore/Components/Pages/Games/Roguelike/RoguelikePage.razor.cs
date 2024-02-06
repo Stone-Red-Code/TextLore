@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 
 using TextLore.Console;
-using TextLore.Console.Commands;
-using TextLore.Games.Roguelike.Commands;
-using TextLore.Games.Roguelike.Models;
+using TextLore.Shared.Commands;
+using TextLore.Shared.Logic;
+using TextLore.Shared.Models.Level;
 
-namespace TextLore.Games.Roguelike;
+namespace TextLore.Components.Pages.Games.Roguelike;
 
 public partial class RoguelikePage
 {
@@ -14,30 +14,33 @@ public partial class RoguelikePage
     // Short description how to play the game
     private readonly string desctiption = "This is a roguelike game. Use commands to play the game.";
 
-    private Components.Shared.Console console = null!;
+    private Shared.Console console = null!;
     private HelpCommand? helpCommand;
 
-    private Level? level;
+    private GameManager? gameManager = null;
 
     [Parameter]
     public string Seed { get; set; } = string.Empty;
 
-    public void OnLevelGenerated(Level level)
+    public async void OnLevelGenerated(Level level)
     {
-        this.level = level;
+        gameManager = new GameManager(level);
+
+        StateHasChanged();
     }
 
     protected override void OnInitialized()
     {
         helpCommand = new HelpCommand(commands);
         commands.Add(helpCommand);
+        commands.Add(new ExitCommand(NavigationManager));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await console.Execute(new GenerateLevelCommand(DatabaseContext.Rooms, NavigationManager, OnLevelGenerated), Seed);
+            await console.Execute(new GenerateLevelCommand("roguelike", DatabaseContext.Rooms, NavigationManager, OnLevelGenerated), Seed);
         }
     }
 }

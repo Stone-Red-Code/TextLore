@@ -1,4 +1,6 @@
-﻿namespace TextLore.Console.Commands;
+﻿using TextLore.Console;
+
+namespace TextLore.Shared.Commands;
 
 public class ClearCommand : Command
 {

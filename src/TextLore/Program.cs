@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 using TextLore.Components;
 using TextLore.Database;
+using TextLore.Shared.Models.Level;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -29,14 +30,14 @@ GamesDatabaseContext databaseContext = serviceScope.ServiceProvider.GetRequiredS
 if (await databaseContext.Database.EnsureCreatedAsync())
 {
     databaseContext.Rooms.AddRange(
-        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.Start, "rogelike") { Name = "Start Room" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.Unique, "rogelike") { Name = "Unique Room" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(2, TextLore.Games.Roguelike.Models.RoomTag.None, "rogelike") { Name = "Normal Room 1" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(3, TextLore.Games.Roguelike.Models.RoomTag.None, "rogelike") { Name = "Normal Room 2" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(4, TextLore.Games.Roguelike.Models.RoomTag.None, "rogelike") { Name = "Normal Room 3" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(5, TextLore.Games.Roguelike.Models.RoomTag.None, "rogelike") { Name = "Normal Room 4" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(6, TextLore.Games.Roguelike.Models.RoomTag.None, "rogelike") { Name = "Normal Room 5" },
-        new TextLore.Games.Roguelike.Models.RoomDefinition(1, TextLore.Games.Roguelike.Models.RoomTag.End, "rogelike") { Name = "End Room" }
+        new RoomDefinition(1, RoomTag.Start, "roguelike") { Name = "Start Room" },
+        new RoomDefinition(1, RoomTag.Unique, "roguelike") { Name = "Unique Room" },
+        new RoomDefinition(2, RoomTag.None, "roguelike") { Name = "Normal Room 1" },
+        new RoomDefinition(3, RoomTag.None, "roguelike") { Name = "Normal Room 2" },
+        new RoomDefinition(4, RoomTag.None, "roguelike") { Name = "Normal Room 3" },
+        new RoomDefinition(5, RoomTag.None, "roguelike") { Name = "Normal Room 4" },
+        new RoomDefinition(6, RoomTag.None, "roguelike") { Name = "Normal Room 5" },
+        new RoomDefinition(1, RoomTag.End, "roguelike") { Name = "End Room" }
     );
 
     _ = await databaseContext.SaveChangesAsync();

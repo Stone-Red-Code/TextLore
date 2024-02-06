@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TextLore.Games.Roguelike.Models;
+namespace TextLore.Shared.Models.Level;
 
 [PrimaryKey(nameof(Id), nameof(Tag), nameof(Game))]
 public class RoomDefinition(int id, RoomTag tag, string game)

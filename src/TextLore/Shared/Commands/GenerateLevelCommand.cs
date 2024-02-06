@@ -2,20 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 
 using TextLore.Console;
-using TextLore.Games.Roguelike.Logic;
-using TextLore.Games.Roguelike.Models;
-using TextLore.Utilities.Logic;
-using TextLore.Utilities.Models;
+using TextLore.Shared.Logic;
+using TextLore.Shared.Models;
+using TextLore.Shared.Models.Level;
 
-namespace TextLore.Games.Roguelike.Commands;
+namespace TextLore.Shared.Commands;
 
-public class GenerateLevelCommand(IQueryable<RoomDefinition> roomDefinitions, NavigationManager navigationManager, Action<Level> levelGeneratedCallback) : Command
+public class GenerateLevelCommand(string gameName, IQueryable<RoomDefinition> roomDefinitions, NavigationManager navigationManager, Action<Level> levelGeneratedCallback) : Command
 {
     private bool isGenerated = false;
     public override string Name => "generatelevel";
     public override string Description => "Generates a new level.";
-
-    public override string[] Aliases => ["genlevel"];
 
     public override bool NoHistoryIfNoOutput => true;
 
@@ -26,12 +23,12 @@ public class GenerateLevelCommand(IQueryable<RoomDefinition> roomDefinitions, Na
             consoleOutput.WriteLine("Invalid seed. Generating a new one...");
             seed = await GenerateSeed();
 
-            navigationManager.NavigateTo($"/roguelike/{seed.ToBase64()}");
+            navigationManager.NavigateTo($"/{gameName}/{seed.ToBase64()}");
         }
 
         consoleOutput.WriteLine("Generating level...");
 
-        LevelGenerator levelGenerator = new LevelGenerator(seed, roomDefinitions);
+        LevelGenerator levelGenerator = new LevelGenerator(seed, roomDefinitions.Where(r => r.Game == gameName));
 
         IProgress<PercentageProgress> progress = new Progress<PercentageProgress>(p => ReportProgress(p, consoleOutput));
 
@@ -88,8 +85,8 @@ public class GenerateLevelCommand(IQueryable<RoomDefinition> roomDefinitions, Na
     private async Task<DeterministicRandom> GenerateSeed()
     {
         int baseSeed = Guid.NewGuid().GetHashCode();
-        int min = await roomDefinitions.MinAsync(r => r.Id);
-        int max = await roomDefinitions.MaxAsync(r => r.Id);
+        int min = await roomDefinitions.Where(r => r.Game == gameName).MinAsync(r => r.Id);
+        int max = await roomDefinitions.Where(r => r.Game == gameName).MaxAsync(r => r.Id);
 
         return new DeterministicRandom(baseSeed, min, max);
     }

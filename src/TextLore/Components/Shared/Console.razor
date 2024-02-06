@@ -56,7 +56,7 @@
     [Parameter]
     public Command? HelpCommand { get; set; }
 
-    private string Placeholder => $"Enter a command{(HelpCommand is null ? "." : ", type 'help' for avaliable commands.")}";
+    private string Placeholder => disabled ? "Processing..." : $"Enter a command{(HelpCommand is null ? "." : ", type 'help' for avaliable commands.")}";
     private ConsoleInput ConsoleInput { get; set; } = new();
     private List<ConsoleOutput> consoleOutputs = new();
     private ConsoleOutput? currentOutput;

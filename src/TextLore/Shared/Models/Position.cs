@@ -1,9 +1,9 @@
-﻿namespace TextLore.Utilities.Models;
+﻿namespace TextLore.Shared.Models;
 
-public struct Position(int x, int y)
+public readonly struct Position(int x, int y)
 {
-    public int X { get; set; } = x;
-    public int Y { get; set; } = y;
+    public int X => x;
+    public int Y => y;
 
     public static Position operator +(Position a, Position b)
     {

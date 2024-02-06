@@ -1,4 +1,4 @@
-﻿namespace TextLore.Games.Roguelike.Models;
+﻿namespace TextLore.Shared.Models.Level;
 
 public enum RoomTag
 {

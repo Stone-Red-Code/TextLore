@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using TextLore.Games.Roguelike.Models;
-using TextLore.Utilities.Logic;
-using TextLore.Utilities.Models;
+using TextLore.Shared.Models;
+using TextLore.Shared.Models.Level;
 
-namespace TextLore.Games.Roguelike.Logic;
+namespace TextLore.Shared.Logic;
 
 public class LevelGenerator(DeterministicRandom seed, IQueryable<RoomDefinition> rooms)
 {

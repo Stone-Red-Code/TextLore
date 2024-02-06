@@ -1,7 +1,7 @@
-﻿using TextLore.Utilities.Logic;
-using TextLore.Utilities.Models;
+﻿using TextLore.Shared.Logic;
+using TextLore.Shared.Models;
 
-namespace TextLore.Games.Roguelike.Models;
+namespace TextLore.Shared.Models.Level;
 
 public class Level(Size size, DeterministicRandom seed)
 {
