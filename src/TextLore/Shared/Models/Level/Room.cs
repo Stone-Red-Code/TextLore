@@ -12,9 +12,21 @@ public class Room(Position position, RoomDefinition roomDefinition)
         return objects.GetValueOrDefault(point);
     }
 
-    public IReadOnlyDictionary<Position, IRoomObject> GetRooms()
+    public IRoomObject? GetObject(string key)
+    {
+        return objects.Values.FirstOrDefault(x => x.Key == key);
+    }
+
+    public IReadOnlyDictionary<Position, IRoomObject> GetObjects()
     {
         return objects;
+    }
+
+    public IReadOnlyDictionary<Position, T> GetObjects<T>() where T : IRoomObject
+    {
+        return objects
+            .Where(x => x.Value is T)
+            .ToDictionary(x => x.Key, x => (T)x.Value);
     }
 
     public bool AddObject(Position point, IRoomObject roomObject)

@@ -2,11 +2,12 @@
 
 namespace TextLore.Components.Pages.Games.Roguelike.Models;
 
-public class Weapon(string name, string description, string tag) : IInventoryItem
+public class Weapon(string key, string name, string description) : IInventoryItem
 {
+    public string Key { get; } = key;
+
     public string Name { get; } = name;
     public string Description { get; } = description;
-    public string Tag { get; } = tag;
 
     public void Shoot()
     {

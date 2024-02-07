@@ -6,5 +6,5 @@ public interface IInventoryItem
 
     public string Description { get; }
 
-    public string Tag { get; }
+    public string Key { get; }
 }

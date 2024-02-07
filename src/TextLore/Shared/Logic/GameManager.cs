@@ -18,7 +18,7 @@ public partial class GameManager
     {
         PlayState = new(level, new());
 
-        ScriptContext currentScriptContext = new(() => PlayState.Player, () => PlayState.CurrentRoom?.Definition);
+        ScriptContext currentScriptContext = new(() => PlayState.Player, () => PlayState.CurrentRoom);
 
         scriptEngine.AddHostObject("context", currentScriptContext);
     }
@@ -54,45 +54,55 @@ public partial class GameManager
 
     public virtual void StartGame()
     {
-        SetPlayerPositionInLevel(PlayState.Level.StartRoom.Position);
+        _ = SetPlayerPositionInLevel(PlayState.Level.StartRoom.Position);
 
         Size currentRoomSize = PlayState.CurrentRoom!.Definition.Size;
 
-        SetPlayerPositionInRoom(new(currentRoomSize.Width / 2, currentRoomSize.Height / 2));
+        _ = SetPlayerPositionInRoom(new(currentRoomSize.Width / 2, currentRoomSize.Height / 2));
     }
 
-    public void MovePlayerInLevel(Direction direction)
+    public bool MovePlayerInLevel(Direction direction)
     {
         Position newPosition = PlayState.Player.PositionInLevel + direction;
-        if (PlayState.Level.IsPositionInBounds(newPosition))
-        {
-            SetPlayerPositionInLevel(newPosition);
-        }
+
+        return SetPlayerPositionInLevel(newPosition);
     }
 
-    public void MovePlayerInRoom(Direction direction)
+    public bool MovePlayerInRoom(Direction direction)
     {
         Position newPosition = PlayState.Player.PositionInLevel + direction;
-        if (PlayState.CurrentRoom?.IsPositionInBounds(newPosition) == true)
-        {
-            SetPlayerPositionInRoom(newPosition);
-        }
+
+        return SetPlayerPositionInRoom(newPosition);
     }
 
-    public virtual void SetPlayerPositionInLevel(Position position)
+    public virtual bool SetPlayerPositionInLevel(Position position)
     {
+        if (PlayState.Level.IsPositionInBounds(position))
+        {
+            return false;
+        }
+
         PlayState.Player.PositionInLevel = position;
 
         SetScript(PlayState.CurrentRoom?.Definition.Script ?? string.Empty);
 
         _ = ExecuteMethod("onPlayerEnterRoom");
+
+        return true;
     }
 
-    public virtual void SetPlayerPositionInRoom(Position position)
+    public virtual bool SetPlayerPositionInRoom(Position position)
     {
+        if (!PlayState.CurrentRoom?.IsPositionInBounds(position) == true)
+        {
+            return false;
+        }
+
         PlayState.Player.PositionInLevel = position;
 
         _ = ExecuteMethod("onPlayerMove");
+
+        return true;
     }
 
     public void Update()
@@ -130,9 +140,9 @@ public partial class GameManager
         scriptEngine.Execute(script);
     }
 
-    public sealed class ScriptContext(Func<Player> player, Func<RoomDefinition?> room)
+    public sealed class ScriptContext(Func<Player> player, Func<Room?> room)
     {
         public Player Player => player();
-        public RoomDefinition? Room => room();
+        public Room? Room => room();
     }
 }

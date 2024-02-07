@@ -5,9 +5,17 @@ namespace TextLore.Components.Pages.Games.Roguelike.Builders;
 
 public class EnemyBuilder : IBuilder<Enemy>
 {
+    private string key = string.Empty;
     private string name = string.Empty;
     private string description = string.Empty;
     private int maxHealth = 0;
+    private Weapon? weapon = null;
+
+    public EnemyBuilder WithKey(string key)
+    {
+        this.key = key;
+        return this;
+    }
 
     public EnemyBuilder WithName(string name)
     {
@@ -27,8 +35,14 @@ public class EnemyBuilder : IBuilder<Enemy>
         return this;
     }
 
+    public EnemyBuilder WithWeapon(Weapon weapon)
+    {
+        this.weapon = weapon;
+        return this;
+    }
+
     public Enemy Build()
     {
-        return new Enemy(name, description, maxHealth);
+        return new Enemy(key, name, description, maxHealth, weapon);
     }
 }
