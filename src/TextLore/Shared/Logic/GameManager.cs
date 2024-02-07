@@ -23,22 +23,95 @@ public partial class GameManager
         scriptEngine.AddHostObject("context", currentScriptContext);
     }
 
-    public void MovePlayer(Direction direction)
+    public GameManager(Level level, IEnumerable<Type> typesToAdd, IEnumerable<object> objectsToAdd) : this(level)
     {
-        Position newPosition = PlayState.Player.Position + direction;
-        if (PlayState.Level.IsPositionInBounds(newPosition))
+        foreach (Type type in typesToAdd)
         {
-            PlayState.Player.Position = newPosition;
+            scriptEngine.AddHostType(type.Name, type);
+        }
 
-            SetScript(PlayState.CurrentRoom?.Definition.Script ?? string.Empty);
+        foreach (object obj in objectsToAdd)
+        {
+            scriptEngine.AddHostObject(obj.GetType().Name, obj);
         }
     }
 
-    public void ExecuteMethod(string method, ConsoleWriter consoleWriter)
+    public GameManager(Level level, IEnumerable<Type> typesToAdd) : this(level)
     {
+        foreach (Type type in typesToAdd)
+        {
+            scriptEngine.AddHostType(type.Name, type);
+        }
+    }
+
+    public GameManager(Level level, IEnumerable<object> objectsToAdd) : this(level)
+    {
+        foreach (object obj in objectsToAdd)
+        {
+            scriptEngine.AddHostObject(obj.GetType().Name, obj);
+        }
+    }
+
+    public virtual void StartGame()
+    {
+        SetPlayerPositionInLevel(PlayState.Level.StartRoom.Position);
+
+        Size currentRoomSize = PlayState.CurrentRoom!.Definition.Size;
+
+        SetPlayerPositionInRoom(new(currentRoomSize.Width / 2, currentRoomSize.Height / 2));
+    }
+
+    public void MovePlayerInLevel(Direction direction)
+    {
+        Position newPosition = PlayState.Player.PositionInLevel + direction;
+        if (PlayState.Level.IsPositionInBounds(newPosition))
+        {
+            SetPlayerPositionInLevel(newPosition);
+        }
+    }
+
+    public void MovePlayerInRoom(Direction direction)
+    {
+        Position newPosition = PlayState.Player.PositionInLevel + direction;
+        if (PlayState.CurrentRoom?.IsPositionInBounds(newPosition) == true)
+        {
+            SetPlayerPositionInRoom(newPosition);
+        }
+    }
+
+    public virtual void SetPlayerPositionInLevel(Position position)
+    {
+        PlayState.Player.PositionInLevel = position;
+
+        SetScript(PlayState.CurrentRoom?.Definition.Script ?? string.Empty);
+
+        _ = ExecuteMethod("onPlayerEnterRoom");
+    }
+
+    public virtual void SetPlayerPositionInRoom(Position position)
+    {
+        PlayState.Player.PositionInLevel = position;
+
+        _ = ExecuteMethod("onPlayerMove");
+    }
+
+    public void Update()
+    {
+        _ = ExecuteMethod("onUpdate");
+    }
+
+    protected T? ExecuteMethod<T>(string method, ConsoleWriter? consoleWriter = null) where T : class
+    {
+        return ExecuteMethod(method, consoleWriter) as T;
+    }
+
+    protected object? ExecuteMethod(string method, ConsoleWriter? consoleWriter = null)
+    {
+        consoleWriter ??= new ConsoleWriter();
+
         try
         {
-            _ = scriptEngine.Invoke(method, consoleWriter);
+            return scriptEngine.Invoke(method, consoleWriter);
         }
         catch (ScriptEngineException ex)
         {
@@ -48,9 +121,11 @@ public partial class GameManager
         {
             consoleWriter.WriteLine(ex.Message);
         }
+
+        return default;
     }
 
-    private void SetScript(string script)
+    protected void SetScript(string script)
     {
         scriptEngine.Execute(script);
     }

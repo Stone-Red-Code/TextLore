@@ -18,5 +18,7 @@ public class RoomDefinition(int id, RoomTag tag, string game)
 
     public required string Name { get; set; }
 
+    public required Size Size { get; set; }
+
     public string Script { get; set; } = string.Empty;
 }

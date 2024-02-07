@@ -4,7 +4,9 @@ public class Player
 {
     public int Health { get; set; } = 100;
 
-    public List<InventoryItem> Inventory { get; } = [];
+    public List<IInventoryItem> Inventory { get; } = [];
 
-    public Position Position { get; set; } = new Position(0, 0);
+    public Position PositionInLevel { get; set; } = new Position(0, 0);
+
+    public Position PositionInRoom { get; set; } = new Position(0, 0);
 }

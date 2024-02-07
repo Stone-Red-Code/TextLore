@@ -1,5 +1,4 @@
 ﻿using TextLore.Shared.Logic;
-using TextLore.Shared.Models;
 
 namespace TextLore.Shared.Models.Level;
 
@@ -11,6 +10,8 @@ public class Level(Size size, DeterministicRandom seed)
     public int RoomCount => rooms.Count;
 
     public DeterministicRandom Seed => seed;
+
+    public Room StartRoom => rooms.Values.First(r => r.Definition.Tag == RoomTag.Start);
 
     public Room? GetRoom(Position point)
     {
@@ -64,7 +65,7 @@ public class Level(Size size, DeterministicRandom seed)
         return rooms.Values.Any(r => r.Definition.Id == definition.Id);
     }
 
-    public void ClearRoom(Position point)
+    public void RemoveRoom(Position point)
     {
         _ = rooms.Remove(point);
     }

@@ -9,5 +9,5 @@ public class PlayState(Level level, Player player)
 
     public Player Player { get; } = player;
 
-    public Room? CurrentRoom => Level.GetRoom(Player.Position);
+    public Room? CurrentRoom => Level.GetRoom(Player.PositionInLevel);
 }

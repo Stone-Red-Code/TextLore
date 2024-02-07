@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
+using TextLore.Components.Pages.Games.Roguelike.Builders;
 using TextLore.Console;
 using TextLore.Shared.Commands;
 using TextLore.Shared.Logic;
@@ -22,9 +23,11 @@ public partial class RoguelikePage
     [Parameter]
     public string Seed { get; set; } = string.Empty;
 
-    public async void OnLevelGenerated(Level level)
+    public void OnLevelGenerated(Level level)
     {
-        gameManager = new GameManager(level);
+        gameManager = new GameManager(level, [typeof(EnemyBuilder)]);
+
+        gameManager.StartGame();
 
         StateHasChanged();
     }
